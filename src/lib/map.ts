@@ -37,6 +37,8 @@ export class Dhis2Map extends EventEmitter {
   private mapboxGlMap: Map;
   private layers: Dhis2Layer[];
   private isReady: boolean;
+  private hoverid: string;
+  private hoverState: { source: string; id: string | number };
 
   constructor(el) {
     super();
@@ -53,6 +55,8 @@ export class Dhis2Map extends EventEmitter {
 
     this.mapboxGlMap.on('click', evt => this.onClick(evt));
     this.mapboxGlMap.on('contextmenu', evt => this.onContextMenu(evt));
+
+    this.mapboxGlMap.on('mousemove', evt => this.onMouseMove(evt));
     this.layers = [];
     this.isReady = false;
   }
@@ -155,6 +159,30 @@ export class Dhis2Map extends EventEmitter {
     } else {
       this.emit('contextmenu', eventObj);
     }
+  }
+
+  public onMouseMove(evt: mapboxgl.MapMouseEvent & EventData): void {
+    const feature = this.getEventFeature(evt);
+
+    const featureSourceId = feature ? `${feature.id}-${feature.source}` : null;
+
+    if (featureSourceId !== this.hoverid) {
+      const mapboxGl = this.getMapGl();
+      mapboxGl.getCanvas().style.cursor = feature ? 'pointer' : '';
+
+      if (this.hoverState) {
+        if (mapboxGl.getSource(this.hoverState.source)) {
+          mapboxGl.setFeatureState(this.hoverState, { hover: false });
+        }
+        this.hoverState = null;
+      }
+      if (feature) {
+        this.hoverState = { source: feature.source, id: feature.id };
+        mapboxGl.setFeatureState(this.hoverState, { hover: true });
+      }
+    }
+
+    this.hoverid = featureSourceId;
   }
 
   public getLayerFromId(id: string): Dhis2Layer {
