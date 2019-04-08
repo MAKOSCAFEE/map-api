@@ -1,4 +1,4 @@
-import EventEmitter from 'events';
+import { EventEmitter } from 'events';
 import { Map } from 'mapbox-gl';
 
 /**
@@ -25,8 +25,12 @@ export class Dhis2Map extends EventEmitter {
     this.mapboxGlMap = new Map({
       container: el,
       maxZoom: 18,
-      style: 'mapbox://styles/mapbox/streets-v11',
-      zoom: 13
+      style: {
+        glyphs: 'http://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
+        layers: [],
+        sources: {},
+        version: 8
+      }
     });
   }
 

@@ -51,7 +51,9 @@
     "node": ">=8.9"
   },
   "dependencies": {
+    "@types/events": "^3.0.0",
     "@types/mapbox-gl": "^0.51.4",
+    "events": "^3.0.0",
     "mapbox-gl": "^0.53.1"
   },
   "devDependencies": {

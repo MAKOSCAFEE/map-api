@@ -9,6 +9,7 @@
     /* tslint-immutable rules */
     // Recommended built-in rules
     "no-var-keyword": true,
+    "no-submodule-imports": false,
     "no-parameter-reassignment": true,
     "typedef": [true, "call-signature"],
 
