@@ -1,5 +1,5 @@
 {
-  "name": "map-api",
+  "name": "@hisptz/map-api",
   "version": "1.0.0",
   "description": "api library for maps specifically for dhis2 map applications",
   "main": "build/main/index.js",
