@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
-import { Map } from 'mapbox-gl';
+import { LngLatBoundsLike, LngLatLike, Map } from 'mapbox-gl';
+import { Dhis2Layer } from './models/layer.model';
 
 /**
  * Create mapbox-gl map instance. (Also a full example of Typedoc's functionality.)
@@ -25,6 +26,8 @@ import { Map } from 'mapbox-gl';
 
 export class Dhis2Map extends EventEmitter {
   private mapboxGlMap: Map;
+  private layers: Dhis2Layer[];
+  private isReady: boolean;
 
   constructor(el) {
     super();
@@ -38,14 +41,48 @@ export class Dhis2Map extends EventEmitter {
         version: 8
       }
     });
+    this.layers = [];
+    this.isReady = false;
   }
 
-  public setView(lnglat, zoom): void {
+  public setView(lnglat: LngLatLike, zoom: number): void {
     this.mapboxGlMap.setCenter(lnglat);
     this.mapboxGlMap.setZoom(zoom);
   }
 
   public getContainer(): HTMLElement {
     return this.mapboxGlMap.getContainer();
+  }
+
+  public fitBounds(bounds: LngLatBoundsLike): void {
+    if (bounds) {
+      this.mapboxGlMap.fitBounds(bounds);
+    }
+  }
+
+  public getMapGl(): Map {
+    return this.mapboxGlMap;
+  }
+
+  public addLayerOnReady(layer: Dhis2Layer): void {
+    if (!layer.isOnMap()) {
+      layer.addTo(this);
+    }
+    this.layers.push(layer);
+    this.isReady = true;
+    setTimeout(() => this.orderLayers(), 50);
+  }
+
+  public orderLayers(): void {
+    const areLayersOutOfOrder = this.layers.some(
+      (layer, index) => layer.getIndex() !== index
+    );
+
+    if (areLayersOutOfOrder) {
+      this.layers.sort((a, b) => a.getIndex() - b.getIndex());
+      for (const layer of this.layers) {
+        layer.moveToTop();
+      }
+    }
   }
 }

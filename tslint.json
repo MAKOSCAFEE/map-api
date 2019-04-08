@@ -14,15 +14,15 @@
     "typedef": [true, "call-signature"],
 
     // Immutability rules
-    "readonly-array": true,
+    // "readonly-array": true,
     "no-let": true,
     "no-object-mutation": true,
     "no-delete": true,
     "no-method-signature": true,
 
     // Functional style rules
-    "no-mixed-interface": true,
-    "no-if-statement": true
+    "no-mixed-interface": true
+    // "no-if-statement": true
     /* end tslint-immutable rules */
   }
 }
