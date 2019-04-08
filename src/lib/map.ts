@@ -1,5 +1,13 @@
 import { EventEmitter } from 'events';
-import { LngLatBoundsLike, LngLatLike, Map } from 'mapbox-gl';
+import { Geometry } from 'geojson';
+import {
+  EventData,
+  Layer,
+  LngLatBoundsLike,
+  LngLatLike,
+  Map,
+  MapboxGeoJSONFeature
+} from 'mapbox-gl';
 import { Dhis2Layer } from './models/layer.model';
 
 /**
@@ -24,6 +32,7 @@ import { Dhis2Layer } from './models/layer.model';
  * @anotherNote   Some other value.
  */
 
+const layerMapping: { [name: string]: Dhis2Layer } = {};
 export class Dhis2Map extends EventEmitter {
   private mapboxGlMap: Map;
   private layers: Dhis2Layer[];
@@ -41,6 +50,9 @@ export class Dhis2Map extends EventEmitter {
         version: 8
       }
     });
+
+    this.mapboxGlMap.on('click', evt => this.onClick(evt));
+    this.mapboxGlMap.on('contextmenu', evt => this.onContextMenu(evt));
     this.layers = [];
     this.isReady = false;
   }
@@ -73,6 +85,29 @@ export class Dhis2Map extends EventEmitter {
     setTimeout(() => this.orderLayers(), 50);
   }
 
+  public addLayer(layer: Dhis2Layer): void {
+    if (!layer.isOnMap()) {
+      if (this.isMapReady()) {
+        this.addLayerOnReady(layer);
+      } else {
+        this.mapboxGlMap.once('styledata', () => this.addLayerOnReady(layer));
+      }
+    }
+  }
+
+  public removeLayer(layer: Dhis2Layer): void {
+    layer.removeFrom(this);
+    this.layers.filter(l => l !== layer);
+  }
+
+  public isMapReady(): boolean {
+    return this.isReady || this.mapboxGlMap.isStyleLoaded();
+  }
+
+  public hasLayer(layer: Dhis2Layer): boolean {
+    return layer && layer.isOnMap();
+  }
+
   public orderLayers(): void {
     const areLayersOutOfOrder = this.layers.some(
       (layer, index) => layer.getIndex() !== index
@@ -84,5 +119,86 @@ export class Dhis2Map extends EventEmitter {
         layer.moveToTop();
       }
     }
+  }
+
+  public resize(): void {
+    this.mapboxGlMap.resize();
+  }
+
+  public getLayers(): Dhis2Layer[] {
+    return this.layers;
+  }
+
+  public onClick(
+    evt: mapboxgl.MapMouseEvent & {
+      features?: mapboxgl.MapboxGeoJSONFeature[];
+    } & EventData
+  ): void {
+    const eventObj = this.createClickEvent(evt);
+
+    if (eventObj.feature) {
+      const layer = this.getLayerFromId(eventObj.feature.layer.id);
+      layer.emit('click', eventObj);
+    }
+  }
+
+  public onContextMenu(
+    evt: mapboxgl.MapMouseEvent & {
+      features?: mapboxgl.MapboxGeoJSONFeature[];
+    } & EventData
+  ): void {
+    const eventObj = this.createClickEvent(evt);
+
+    if (eventObj.feature) {
+      const layer = this.getLayerFromId(eventObj.feature.layer.id);
+      layer.emit('contextmenu', eventObj);
+    } else {
+      this.emit('contextmenu', eventObj);
+    }
+  }
+
+  public getLayerFromId(id: string): Dhis2Layer {
+    return this.layers.find(layer => layer.hasLayerId(id));
+  }
+
+  private getEventFeature(evt): MapboxGeoJSONFeature {
+    const layers = this.getLayers()
+      .filter(l => l.isInteractive())
+      .map(l => l.getInteractiveIds())
+      .reduce((out, ids) => [...out, ...ids], []);
+    return layers.length
+      ? this.mapboxGlMap.queryRenderedFeatures(evt.point, { layers })[0]
+      : undefined;
+  }
+
+  private createClickEvent(
+    evt: mapboxgl.MapMouseEvent & {
+      features?: mapboxgl.MapboxGeoJSONFeature[];
+    } & EventData
+  ): {
+    coordinates: number[];
+    position: number[];
+    feature?: {
+      geometry: Geometry;
+      layer: Layer;
+      properties: { [name: string]: any };
+    };
+  } {
+    const { lngLat, originalEvent } = evt;
+    const coordinates = [lngLat.lng, lngLat.lat];
+    const position = [originalEvent.x, originalEvent.pageY || originalEvent.y];
+    const eventObj = { coordinates, position };
+    const eventFeature = this.getEventFeature(evt);
+
+    const { properties, geometry, layer } = eventFeature;
+
+    const feature = {
+      geometry,
+      layer,
+      properties,
+      type: 'Feature'
+    };
+
+    return eventFeature ? { ...eventObj, feature } : eventObj;
   }
 }
