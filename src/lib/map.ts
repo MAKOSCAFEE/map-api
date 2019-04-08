@@ -2,18 +2,24 @@ import { EventEmitter } from 'events';
 import { Map } from 'mapbox-gl';
 
 /**
- * Multiplies a value by 2. (Also a full example of Typedoc's functionality.)
+ * Create mapbox-gl map instance. (Also a full example of Typedoc's functionality.)
  *
  * ### Example (es module)
  * ```js
- * import { double } from 'typescript-starter'
- * console.log(double(4))
+ * import { Dhis2Map } from '@hisptz/map-api'
+ *
+ * const mapContainer = document.createElement('div')
+ *
+ * mapContainer.style.width = '100%'
+ * mapContainer.style.height = '100%'
+ *
+ * const map = new Dhis2Map(mapContainer)
  * // => 8
  * ```
  *
  *
- * @param element   Comment describing the `value` parameter.
- * @returns       Comment describing the return type.
+ * @param el   Html element that will act as map container.
+ * @returns       `Map` instance.
  * @anotherNote   Some other value.
  */
 
