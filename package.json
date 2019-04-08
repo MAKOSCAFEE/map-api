@@ -74,9 +74,7 @@
     "typescript": "^3.1.6"
   },
   "jest": {
-    "transform": {
-      ".(ts|tsx)": "ts-jest"
-    },
+    "preset": "ts-jest",
     "testEnvironment": "node",
     "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
     "moduleFileExtensions": [
@@ -86,16 +84,9 @@
     ],
     "coveragePathIgnorePatterns": [
       "/node_modules/",
-      "/test/"
+      "/__test__/"
     ],
-    "coverageThreshold": {
-      "global": {
-        "branches": 90,
-        "functions": 95,
-        "lines": 95,
-        "statements": 95
-      }
-    },
+    "collectCoverage": true,
     "collectCoverageFrom": [
       "src/*.{js,ts}"
     ]
