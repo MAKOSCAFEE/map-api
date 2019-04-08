@@ -32,7 +32,6 @@ import { Dhis2Layer } from './models/layer.model';
  * @anotherNote   Some other value.
  */
 
-const layerMapping: { [name: string]: Dhis2Layer } = {};
 export class Dhis2Map extends EventEmitter {
   private mapboxGlMap: Map;
   private layers: Dhis2Layer[];
