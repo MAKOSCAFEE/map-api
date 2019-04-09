@@ -10,6 +10,7 @@ import {
 } from 'mapbox-gl';
 import DefaultLayer from './layers';
 import Thematic from './layers/thematic';
+import TileLayer from './layers/TileLayer';
 import { Dhis2Layer } from './models/layer.model';
 
 /**
@@ -35,9 +36,9 @@ import { Dhis2Layer } from './models/layer.model';
  */
 
 const layersMapping = {
-  thematic: Thematic
+  thematic: Thematic,
+  tilelayer: TileLayer
 };
-
 export class Dhis2Map extends EventEmitter {
   private mapboxGlMap: Map;
   private layers: Dhis2Layer[];
@@ -64,6 +65,7 @@ export class Dhis2Map extends EventEmitter {
     this.mapboxGlMap.on('mousemove', evt => this.onMouseMove(evt));
     this.layers = [];
     this.isReady = false;
+    Object.assign(this, this.mapboxGlMap);
   }
 
   public setView(lnglat: LngLatLike, zoom: number): void {
@@ -83,15 +85,6 @@ export class Dhis2Map extends EventEmitter {
 
   public getMapGl(): Map {
     return this.mapboxGlMap;
-  }
-
-  public addLayerOnReady(layer: Dhis2Layer): void {
-    if (!layer.isOnMap()) {
-      layer.addTo(this);
-    }
-    this.layers.push(layer);
-    this.isReady = true;
-    setTimeout(() => this.orderLayers(), 50);
   }
 
   public addLayer(layer: Dhis2Layer): void {
@@ -204,6 +197,16 @@ export class Dhis2Map extends EventEmitter {
     } else {
       return new DefaultLayer();
     }
+  }
+
+  private addLayerOnReady(layer: Dhis2Layer): void {
+    // tslint:disable-next-line:no-console
+    if (!layer.isOnMap()) {
+      layer.addTo(this);
+    }
+    this.layers.push(layer);
+    this.isReady = true;
+    setTimeout(() => this.orderLayers(), 50);
   }
 
   private getEventFeature(evt): MapboxGeoJSONFeature {

@@ -1,5 +1,4 @@
 import bbox from '@turf/bbox';
-import { BBox } from '@turf/helpers';
 import { EventEmitter } from 'events';
 import { Feature, FeatureCollection } from 'geojson';
 import { AnySourceData, Layer, Map } from 'mapbox-gl';
@@ -40,6 +39,8 @@ class MapLayer extends EventEmitter implements Dhis2Layer {
     const layers = this.getLayers();
 
     if (images) {
+      // tslint:disable-next-line:no-console
+      console.log(images);
       await addImages(mapboxGl, images);
     }
     Object.keys(sources).forEach(id => mapboxGl.addSource(id, sources[id]));
@@ -152,7 +153,7 @@ class MapLayer extends EventEmitter implements Dhis2Layer {
     return this.options.index || 0;
   }
 
-  public getBound(): BBox {
+  public getBound(): any {
     const data = this.getFeatures();
     return data && data.features.length ? bbox(data) : null;
   }

@@ -9,5 +9,7 @@ export interface LayerOptions extends OptionsEvent {
   type?: string;
   data?: any;
   label?: boolean;
+  url?: string;
+  attribution?: string;
   labelStyle?: any;
 }
