@@ -65,7 +65,6 @@ export class Dhis2Map extends EventEmitter {
     this.mapboxGlMap.on('mousemove', evt => this.onMouseMove(evt));
     this.layers = [];
     this.isReady = false;
-    Object.assign(this, this.mapboxGlMap);
   }
 
   public setView(lnglat: LngLatLike, zoom: number): void {
