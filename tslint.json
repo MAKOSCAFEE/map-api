@@ -16,7 +16,7 @@
     // Immutability rules
     // "readonly-array": true,
     "no-let": true,
-    "no-object-mutation": true,
+    "no-object-mutation": false,
     "no-delete": true,
     "no-method-signature": true,
 
