@@ -217,12 +217,10 @@ export class Dhis2Map extends EventEmitter {
     const eventObj = { coordinates, position };
     const eventFeature = this.getEventFeature(evt);
 
-    const { properties, geometry, layer } = eventFeature;
-
     const feature = {
-      geometry,
-      layer,
-      properties,
+      geometry: eventFeature && eventFeature.geometry,
+      layer: eventFeature && eventFeature.layer,
+      properties: eventFeature && eventFeature.properties,
       type: 'Feature'
     };
 
