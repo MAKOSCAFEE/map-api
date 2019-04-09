@@ -1,6 +1,9 @@
+import bbox from '@turf/bbox';
+import { BBox } from '@turf/helpers';
 import { EventEmitter } from 'events';
 import { Feature, FeatureCollection } from 'geojson';
 import { AnySourceData, Layer, Map } from 'mapbox-gl';
+import uuid from 'uuid/v4';
 import { Dhis2Map } from '../map';
 import { LayerOptions } from '../models/layer-options.model';
 import { Dhis2Layer } from '../models/layer.model';
@@ -12,7 +15,7 @@ class MapLayer extends EventEmitter implements Dhis2Layer {
   private id: string;
   private images: any;
   private isMapVisible: boolean;
-  private sources: { [id: string]: AnySourceData };
+  private sources: { [id: string]: any };
   private interactiveIds: string[];
   private layers: Layer[];
   private features: Feature[];
@@ -20,6 +23,7 @@ class MapLayer extends EventEmitter implements Dhis2Layer {
   constructor(options: LayerOptions = {}) {
     super();
     this.sources = {};
+    this.id = options.id || uuid();
     this.layers = [];
     this.features = [];
     this.isMapVisible = true;
@@ -102,6 +106,18 @@ class MapLayer extends EventEmitter implements Dhis2Layer {
     return this.isInteractive() ? this.interactiveIds : [];
   }
 
+  // Adds integer id for each feature (required by Feature State)
+  public setFeatures(data = []): void {
+    this.features = data.map((f, i) => ({ ...f, id: i }));
+  }
+
+  public addLayer(layer: Layer, isInteractive: boolean): void {
+    this.layers.push(layer);
+    if (isInteractive) {
+      this.interactiveIds.push(layer.id);
+    }
+  }
+
   public setSource(id: string | number, source: any): void {
     this.sources[id] = source;
   }
@@ -134,6 +150,11 @@ class MapLayer extends EventEmitter implements Dhis2Layer {
 
   public getIndex(): number {
     return this.options.index || 0;
+  }
+
+  public getBound(): BBox {
+    const data = this.getFeatures();
+    return data && data.features.length ? bbox(data) : null;
   }
 
   // TODO: implement setOpacity;

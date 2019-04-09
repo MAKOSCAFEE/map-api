@@ -8,6 +8,8 @@ import {
   Map,
   MapboxGeoJSONFeature
 } from 'mapbox-gl';
+import DefaultLayer from './layers';
+import Thematic from './layers/thematic';
 import { Dhis2Layer } from './models/layer.model';
 
 /**
@@ -31,6 +33,10 @@ import { Dhis2Layer } from './models/layer.model';
  * @returns       `Map` instance.
  * @anotherNote   Some other value.
  */
+
+const layersMapping = {
+  thematic: Thematic
+};
 
 export class Dhis2Map extends EventEmitter {
   private mapboxGlMap: Map;
@@ -186,6 +192,18 @@ export class Dhis2Map extends EventEmitter {
 
   public getLayerFromId(id: string): Dhis2Layer {
     return this.layers.find(layer => layer.hasLayerId(id));
+  }
+
+  public hasLayerSupport(type: string): boolean {
+    return !!layersMapping[type];
+  }
+
+  public createLayer(config): DefaultLayer {
+    if (layersMapping[config.type]) {
+      return new layersMapping[config.type](config);
+    } else {
+      return new DefaultLayer();
+    }
   }
 
   private getEventFeature(evt): MapboxGeoJSONFeature {

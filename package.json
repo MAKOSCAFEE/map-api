@@ -55,6 +55,7 @@
     "@turf/area": "^6.0.1",
     "@turf/bbox": "^6.0.1",
     "@turf/circle": "^6.0.1",
+    "@turf/helpers": "^6.1.4",
     "@types/events": "^3.0.0",
     "@types/mapbox-gl": "^0.51.4",
     "events": "^3.0.0",
